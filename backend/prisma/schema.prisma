@@ -1,0 +1,60 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  STUDENT
+  HOST
+}
+
+model User {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  email     String   @unique
+  password  String?
+  role      Role     @default(STUDENT)
+  meetingId String?
+  meeting   Meeting? @relation(fields: [meetingId], references: [meetingId])
+
+  messages Message[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt()
+}
+
+model Meeting {
+  id              String   @id @default(auto()) @map("_id") @db.ObjectId
+  name            String
+  meetingTime     DateTime
+  meetingId       String   @unique @map(name: "meeting_id")
+  meetingDuration DateTime @map(name: "meeting_duration")
+
+  users User[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Conversation {
+  id      String   @id @default(auto()) @map("_id") @db.ObjectId
+  members String[] @db.ObjectId
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Message {
+  id         String @id @default(auto()) @map("_id") @db.ObjectId
+  senderId   String @db.ObjectId
+  recieverId String @db.ObjectId
+  message    String
+
+  user User @relation(fields: [senderId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
