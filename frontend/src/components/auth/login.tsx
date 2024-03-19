@@ -1,16 +1,21 @@
+"use client";
+
 import Image from "next/image";
-import { Dispatch, SetStateAction, useState } from "react";
+import toast from "react-hot-toast";
+import { useRouter } from "next/navigation";
+import { Dispatch, SetStateAction, useEffect, useState } from "react";
 import { IoMdEye, IoMdEyeOff } from "react-icons/io";
 import z from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useUserContext } from "@/context/user.context";
 
 const LoginSchema = z.object({
   email: z.string().email().min(1, {
     message: "Email cannot be empty",
   }),
 
-  password: z.string().min(1, {
+  password: z.string().min(8, {
     message: "Password cannot be empty",
   }),
 });
@@ -32,9 +37,34 @@ const Login = ({
   });
 
   const [passwordvisibility, setPasswordVisibility] = useState(false);
+  const { setUser } = useUserContext();
+  const router = useRouter();
 
-  const handleSubmit = (value: TLoginSchema): void => {
-    console.log("submitted");
+  const handleSubmit = async (value: TLoginSchema): Promise<void | string> => {
+    const res = await fetch("http://localhost:8000/api/v1/users/login", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        email: value.email,
+        password: value.password,
+      }),
+    });
+
+    const data = await res.json();
+
+    if (res.status === 500) return toast.error("Something went wrong");
+
+    if (res.status === 401) return toast.error("Invalid credentials");
+
+    if (res.status === 404) return toast.error("User not found");
+
+    router.push("/");
+
+    localStorage.setItem("user", JSON.stringify(data));
+
+    setUser(data);
   };
 
   return (

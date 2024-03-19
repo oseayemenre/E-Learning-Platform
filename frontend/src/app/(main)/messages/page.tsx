@@ -6,12 +6,6 @@ import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 
-const socket = io("http://localhost:8000");
-
-socket.on("connect", () => {
-  console.log(socket.id);
-});
-
 const messageSchema = z.object({
   message: z.string().min(1),
 });

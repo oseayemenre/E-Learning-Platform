@@ -83,6 +83,7 @@ export const login = asyncHandler(
     res.status(200).json({
       status: "success",
       message: "User logged in",
+      user,
     });
   }
 );

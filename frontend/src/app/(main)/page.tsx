@@ -1,3 +1,5 @@
+"use client";
+
 import SearchSection from "@/components/main/search-section";
 import FavoriteBlob from "@/components/dashboard/favorite-blob";
 import Profile from "@/components/main/profile";
