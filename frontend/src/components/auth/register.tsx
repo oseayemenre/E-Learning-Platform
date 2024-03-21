@@ -1,30 +1,14 @@
+"use client";
+
 import Image from "next/image";
 import { Dispatch, SetStateAction, useState } from "react";
 import z from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { IoMdEye, IoMdEyeOff } from "react-icons/io";
+import { IoMdEye, IoMdEyeOff, IoIosArrowUp } from "react-icons/io";
+import { MdOutlineSchool } from "react-icons/md";
 import toast from "react-hot-toast";
-
-enum Level {
-  HUNDRED = 100,
-  TWOHUNDRED = 200,
-  THREEHUNDRED = 300,
-  FOURHUNDRED = 400,
-  FIVEHUNDRED = 500,
-}
-
-console.log(Level.FIVEHUNDRED);
-
-enum Role {
-  STUDENT,
-  LECTURER,
-}
-
-enum Semester {
-  FIRST = 1,
-  SECOND = 2,
-}
+import { motion } from "framer-motion";
 
 const RegisterSchema = z.object({
   email: z.string().email().min(1, {
@@ -38,18 +22,54 @@ const RegisterSchema = z.object({
   confirmPassword: z.string().min(8, {
     message: "Confirm password cannot be empty",
   }),
-
-  currentLevel: z.nativeEnum(Level),
-
-  semester: z.nativeEnum(Semester),
-
-  course: z.string().min(1, {
-    message: "Course cannot be empty",
-  }),
 });
+
+const DropdownItems = [
+  {
+    title: "Software Engineering",
+    click: "SOFTWARE ENGINEERING",
+  },
+
+  {
+    title: "Computer Science",
+    click: "COMPUTER SCIENCE",
+  },
+
+  {
+    title: "Computer Technology",
+    click: "COMPUTER TECHNOLOGY",
+  },
+
+  {
+    title: "Computer Information System",
+    click: "COMPUTER INFORMATION SYSTEM",
+  },
+
+  {
+    title: "Information Technology",
+    click: "INFORMATION TECHNOLOGY",
+  },
+] as const;
+
+const StudentLevel = ["100", "200", "300", "400"] as const;
+const currentSemester = ["FIRST", "SECOND"] as const;
 
 type TRegisterSchema = z.infer<typeof RegisterSchema>;
 type TRole = "STUDENT" | "LECTURER";
+type TCourse =
+  | "COMPUTER SCIENCE"
+  | "SOFTWARE ENGINEERING"
+  | "COMPUTER TECHNOLOGY"
+  | "COMPUTER INFORMATION SYSTEM"
+  | "INFORMATION TECHNOLOGY"
+  | "Select Course Of Study";
+type TDropdownCourses = (typeof DropdownItems)[number];
+
+type TLevel = (typeof StudentLevel)[number] | "Select Level";
+
+type TSemester =
+  | (typeof currentSemester)[number]
+  | "Enter your Current Semester";
 
 const Register = ({
   handleChange,
@@ -61,9 +81,6 @@ const Register = ({
       email: "",
       password: "",
       confirmPassword: "",
-      currentLevel: undefined,
-      semester: undefined,
-      course: "",
     },
 
     resolver: zodResolver(RegisterSchema),
@@ -73,6 +90,25 @@ const Register = ({
   const [confirmPasswordVisibility, setConfirmPasswordVisibility] =
     useState(false);
   const [role, setRole] = useState<TRole>("STUDENT");
+  const [level, setLevel] = useState<TLevel>("Select Level");
+  const [toggleCourses, setToggleCourses] = useState(false);
+  const [course, setCourse] = useState<TCourse>("Select Course Of Study");
+  const [toggleLevel, setToggleLevel] = useState(false);
+  const [toggleSemester, setToggleSemester] = useState(false);
+  const [semester, setSemester] = useState<TSemester>(
+    "Enter your Current Semester"
+  );
+
+  const currentLevel =
+    level === "100"
+      ? "HUNDRED"
+      : level === "200"
+      ? "TWO_HUNDRED"
+      : level === "300"
+      ? "THREE_HUNDRED"
+      : level === "400"
+      ? "FOUR_HUNDRED"
+      : null;
 
   const handleSubmit = async (value: TRegisterSchema) => {
     console.log("submit");
@@ -89,9 +125,10 @@ const Register = ({
         body: JSON.stringify({
           email: value.email,
           password: value.password,
-          currentLevel: value.currentLevel,
-          semester: value.semester,
-          course: value.course,
+          currentLevel,
+          semester,
+          course: course.split(/\s+/).join("_"),
+          role,
         }),
       }
     );
@@ -100,7 +137,7 @@ const Register = ({
   };
 
   return (
-    <main className="flex justify-between">
+    <main className="flex justify-between ">
       <section className="w-5/6 mb-[20px]">
         <Image
           src="/lernixlg_logo.png"
@@ -110,203 +147,305 @@ const Register = ({
           className="my-[21px] ml-[12px]"
         />
 
-        <div className="flex justify-between pl-[123px] pr-[41px] items-start">
+        <form onSubmit={form.handleSubmit(handleSubmit)}>
           <div>
-            <div className="mb-[52px]">
-              <h2 className="font-[500] text-[30px] mb-[22px]">Sign up</h2>
-              <p className="mb-[6px]">If you don’t have an account</p>
-              <p>
-                You can{" "}
-                <span
-                  className="text-[#3339ad] font-[600] cursor-pointer"
-                  onClick={() => handleChange(false)}
-                >
-                  Login here !
-                </span>
-              </p>
-            </div>
-
-            <form className="w-[429px] mb-[39px]">
-              <div className="flex flex-col w-full mb-[42px]">
-                <label className="mb-[11px] font-[500] text-[13px] text-[#999999]">
-                  Email
-                </label>
-
-                <div className="flex gap-x-[10px] items-center mb-[7px]">
-                  <Image src="/message.svg" width={17} height={17} alt="" />
-                  <input
-                    {...form.register("email")}
-                    placeholder="Enter your email address"
-                    className="text-[#000842] placeholder:text-[#000842] focus:outline-none w-full "
-                  />
+            <div className="flex justify-between pl-[123px] pr-[41px] items-start">
+              <div>
+                <div className="mb-[52px]">
+                  <h2 className="font-[500] text-[30px] mb-[22px]">Sign up</h2>
+                  <p className="mb-[6px]">If you don’t have an account</p>
+                  <p>
+                    You can{" "}
+                    <span
+                      className="text-[#3339ad] font-[600] cursor-pointer"
+                      onClick={() => handleChange(false)}
+                    >
+                      Login here !
+                    </span>
+                  </p>
                 </div>
-                <div className="border-b-[2px]  border-b-[#000842] w-full" />
-              </div>
 
-              <div className="flex flex-col w-full mb-[42px]">
-                <label className="mb-[11px] font-[500] text-[13px] text-[#999999]">
-                  Password
-                </label>
+                <div className="w-[429px] mb-[39px]">
+                  <div className="flex flex-col w-full mb-[42px]">
+                    <label className="mb-[11px] font-[500] text-[13px] text-[#999999]">
+                      Email
+                    </label>
 
-                <div className="w-full flex justify-between items-center">
-                  <div className="flex gap-x-[10px] items-center mb-[7px]">
-                    <Image src="/padlock.svg" width={17} height={17} alt="" />
-                    <input
-                      {...form.register("password")}
-                      type={passwordvisibility ? "text" : "password"}
-                      placeholder="Enter your Password"
-                      className="text-[#000842] placeholder:text-[#000842] focus:outline-none w-full "
-                    />
+                    <div className="flex gap-x-[10px] items-center mb-[7px]">
+                      <Image src="/message.svg" width={17} height={17} alt="" />
+                      <input
+                        {...form.register("email")}
+                        placeholder="Enter your email address"
+                        className="text-[#000842] placeholder:text-[#000842] focus:outline-none w-full "
+                      />
+                    </div>
+                    <div className="border-b-[2px]  border-b-[#000842] w-full" />
                   </div>
 
-                  {passwordvisibility ? (
-                    <IoMdEye
-                      size={16}
-                      color="#ABABAB"
-                      className="cursor-pointer"
-                      onClick={() => setPasswordVisibility(false)}
-                    />
-                  ) : (
-                    <IoMdEyeOff
-                      size={16}
-                      color="#ABABAB"
-                      className="cursor-pointer"
-                      onClick={() => setPasswordVisibility(true)}
-                    />
-                  )}
-                </div>
-                <div className="border-b-[2px]  border-b-[#000842] w-full" />
-              </div>
+                  <div className="flex flex-col w-full mb-[42px]">
+                    <label className="mb-[11px] font-[500] text-[13px] text-[#999999]">
+                      Password
+                    </label>
 
-              <div className="flex flex-col w-full mb-[42px]">
-                <label className="mb-[11px] font-[500] text-[13px] text-[#999999]">
-                  Confirm Password
-                </label>
+                    <div className="w-full flex justify-between items-center">
+                      <div className="flex gap-x-[10px] items-center mb-[7px]">
+                        <Image
+                          src="/padlock.svg"
+                          width={17}
+                          height={17}
+                          alt=""
+                        />
+                        <input
+                          {...form.register("password")}
+                          type={passwordvisibility ? "text" : "password"}
+                          placeholder="Enter your Password"
+                          className="text-[#000842] placeholder:text-[#000842] focus:outline-none w-full "
+                        />
+                      </div>
 
-                <div className="w-full flex justify-between items-center">
-                  <div className="flex gap-x-[10px] items-center mb-[7px]">
-                    <Image src="/padlock.svg" width={17} height={17} alt="" />
-                    <input
-                      {...form.register("confirmPassword")}
-                      type={confirmPasswordVisibility ? "text" : "password"}
-                      placeholder="Confirm your password"
-                      className="text-[#000842] placeholder:text-[#000842] focus:outline-none w-full "
-                    />
+                      {passwordvisibility ? (
+                        <IoMdEye
+                          size={16}
+                          color="#ABABAB"
+                          className="cursor-pointer"
+                          onClick={() => setPasswordVisibility(false)}
+                        />
+                      ) : (
+                        <IoMdEyeOff
+                          size={16}
+                          color="#ABABAB"
+                          className="cursor-pointer"
+                          onClick={() => setPasswordVisibility(true)}
+                        />
+                      )}
+                    </div>
+                    <div className="border-b-[2px]  border-b-[#000842] w-full" />
                   </div>
 
-                  {confirmPasswordVisibility ? (
-                    <IoMdEye
-                      size={16}
-                      color="#ABABAB"
-                      className="cursor-pointer"
-                      onClick={() => setConfirmPasswordVisibility(false)}
-                    />
-                  ) : (
-                    <IoMdEyeOff
-                      size={16}
-                      color="#ABABAB"
-                      className="cursor-pointer"
-                      onClick={() => setConfirmPasswordVisibility(true)}
-                    />
-                  )}
+                  <div className="flex flex-col w-full mb-[42px]">
+                    <label className="mb-[11px] font-[500] text-[13px] text-[#999999]">
+                      Confirm Password
+                    </label>
+
+                    <div className="w-full flex justify-between items-center">
+                      <div className="flex gap-x-[10px] items-center mb-[7px]">
+                        <Image
+                          src="/padlock.svg"
+                          width={17}
+                          height={17}
+                          alt=""
+                        />
+                        <input
+                          {...form.register("confirmPassword")}
+                          type={confirmPasswordVisibility ? "text" : "password"}
+                          placeholder="Confirm your password"
+                          className="text-[#000842] placeholder:text-[#000842] focus:outline-none w-full "
+                        />
+                      </div>
+
+                      {confirmPasswordVisibility ? (
+                        <IoMdEye
+                          size={16}
+                          color="#ABABAB"
+                          className="cursor-pointer"
+                          onClick={() => setConfirmPasswordVisibility(false)}
+                        />
+                      ) : (
+                        <IoMdEyeOff
+                          size={16}
+                          color="#ABABAB"
+                          className="cursor-pointer"
+                          onClick={() => setConfirmPasswordVisibility(true)}
+                        />
+                      )}
+                    </div>
+                    <div className="border-b-[2px]  border-b-[#000842] w-full" />
+                  </div>
+
+                  <div className="relative">
+                    {toggleCourses && (
+                      <motion.div
+                        initial={{
+                          opacity: 0,
+                        }}
+                        animate={{ opacity: 1 }}
+                        className="w-full h-[200px] absolute top-[60px] bg-[#C5CBE6] rounded-[5px] flex flex-col gap-y-1"
+                      >
+                        {DropdownItems.map(
+                          (items: TDropdownCourses, index: number) => (
+                            <div
+                              className="px-6 pt-2 hover:bg-blue-500 hover:text-white cursor-pointer"
+                              key={index}
+                              onClick={() => setCourse(items.click)}
+                            >
+                              {items.title}
+                            </div>
+                          )
+                        )}
+                      </motion.div>
+                    )}
+
+                    <div className="flex flex-col w-full mb-[42px]">
+                      <label className="mb-[11px] font-[500] text-[13px] text-[#999999]">
+                        Course
+                      </label>
+
+                      <div className="flex justify-between items-center">
+                        <div className="flex gap-x-[10px] items-center mb-[7px]">
+                          <MdOutlineSchool size={17} />
+                          <p>{course}</p>
+                        </div>
+
+                        <IoIosArrowUp
+                          size={17}
+                          className={`cursor-pointer duration-150 ease ${
+                            toggleCourses ? "rotate-180" : "rotate-0"
+                          }`}
+                          onClick={() => setToggleCourses(!toggleCourses)}
+                        />
+                      </div>
+                      <div className="border-b-[2px]  border-b-[#000842] w-full" />
+                    </div>
+                  </div>
                 </div>
-                <div className="border-b-[2px]  border-b-[#000842] w-full" />
               </div>
 
-              <div className="flex flex-col w-full mb-[42px]">
-                <label className="mb-[11px] font-[500] text-[13px] text-[#999999]">
-                  Course
-                </label>
+              <div className="mt-[55px] mb-[37px]">
+                <p className="mb-[68px]">
+                  Are you a Student or{" "}
+                  <span className="text-[#1F548D]">Lecturer?</span>
+                </p>
 
-                <div className="flex gap-x-[10px] items-center mb-[7px]">
-                  <Image src="/message.svg" width={17} height={17} alt="" />
-                  <input
-                    {...form.register("course")}
-                    placeholder="Enter your Course"
-                    className="text-[#000842] placeholder:text-[#000842] focus:outline-none w-full "
-                  />
+                <div className="w-[314px] h-[83px] bg-[#C5CBE6] rounded-[32px] p-6 flex justify-between items-center drop-shadow-[0_4px_26px_rgba(0,0,0,0.25)] text-white">
+                  <button
+                    className={`w-[142px] ${
+                      role === "STUDENT"
+                        ? "bg-[#738DFE] h-[36px] rounded-full text-white drop-shadow-[0_4px_26px_rgba(0,0,0,0.25)] duration-150 transition ease"
+                        : null
+                    }`}
+                    onClick={() => setRole("STUDENT")}
+                  >
+                    Student
+                  </button>
+                  <button
+                    className={`w-[142px] ${
+                      role === "LECTURER"
+                        ? "bg-[#738DFE] h-[36px] rounded-full text-white drop-shadow-[0_4px_26px_rgba(0,0,0,0.25)] duration-150 transition ease"
+                        : null
+                    }`}
+                    onClick={() => setRole("LECTURER")}
+                  >
+                    Lecturer
+                  </button>
                 </div>
-                <div className="border-b-[2px]  border-b-[#000842] w-full" />
+
+                <div>
+                  <div className="w-[429px] mb-[39px] mt-[37px]">
+                    <div className="relative">
+                      {toggleLevel && (
+                        <motion.div
+                          initial={{
+                            opacity: 0,
+                          }}
+                          animate={{ opacity: 1 }}
+                          className="w-full h-[150px] absolute top-[60px] bg-[#C5CBE6] z-50 rounded-[5px] flex flex-col gap-y-1"
+                        >
+                          {StudentLevel.map((items: TLevel, index: number) => (
+                            <div
+                              className="px-6 pt-2 hover:bg-blue-500 hover:text-white cursor-pointer"
+                              key={index}
+                              onClick={() => setLevel(items)}
+                            >
+                              {items}
+                            </div>
+                          ))}
+                        </motion.div>
+                      )}
+
+                      {role === "STUDENT" && (
+                        <div className="flex flex-col w-full mb-[42px]">
+                          <label className="mb-[11px] font-[500] text-[13px] text-[#999999]">
+                            Level
+                          </label>
+
+                          <div className="flex justify-between items-center">
+                            <div className="flex gap-x-[10px] items-center mb-[7px]">
+                              <MdOutlineSchool size={17} />
+                              <p>{level}</p>
+                            </div>
+
+                            <IoIosArrowUp
+                              size={17}
+                              className={`cursor-pointer duration-150 ease ${
+                                toggleLevel ? "rotate-180" : "rotate-0"
+                              }`}
+                              onClick={() => setToggleLevel(!toggleLevel)}
+                            />
+                          </div>
+                          <div className="border-b-[2px]  border-b-[#000842] w-full" />
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="flex flex-col w-full mb-[42px]">
+                      <div className="relative">
+                        {toggleSemester && (
+                          <motion.div
+                            initial={{
+                              opacity: 0,
+                            }}
+                            animate={{ opacity: 1 }}
+                            className="w-full h-[100px] absolute top-[60px] bg-[#C5CBE6] rounded-[5px] flex flex-col gap-y-1"
+                          >
+                            {currentSemester.map(
+                              (items: TSemester, index: number) => (
+                                <div
+                                  className="px-6 pt-2 hover:bg-blue-500 hover:text-white cursor-pointer"
+                                  key={index}
+                                  onClick={() => setSemester(items)}
+                                >
+                                  {items}
+                                </div>
+                              )
+                            )}
+                          </motion.div>
+                        )}
+
+                        <div className="flex flex-col w-full mb-[42px]">
+                          <label className="mb-[11px] font-[500] text-[13px] text-[#999999]">
+                            Semester
+                          </label>
+
+                          <div className="flex justify-between items-center">
+                            <div className="flex gap-x-[10px] items-center mb-[7px]">
+                              <MdOutlineSchool size={17} />
+                              <p>{semester}</p>
+                            </div>
+
+                            <IoIosArrowUp
+                              size={17}
+                              className={`cursor-pointer duration-150 ease ${
+                                toggleSemester ? "rotate-180" : "rotate-0"
+                              }`}
+                              onClick={() => setToggleSemester(!toggleSemester)}
+                            />
+                          </div>
+                          <div className="border-b-[2px]  border-b-[#000842] w-full" />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
               </div>
-            </form>
-          </div>
-
-          <div className="mt-[55px] mb-[37px]">
-            <p className="mb-[68px]">
-              Are you a Student or{" "}
-              <span className="text-[#1F548D]">Lecturer?</span>
-            </p>
-
-            <div className="w-[314px] h-[83px] bg-[#C5CBE6] rounded-[32px] p-6 flex justify-between items-center drop-shadow-[0_4px_26px_rgba(0,0,0,0.25)] text-white">
-              <button
-                className={`w-[142px] ${
-                  role === "STUDENT"
-                    ? "bg-[#738DFE] h-[36px] rounded-full text-white drop-shadow-[0_4px_26px_rgba(0,0,0,0.25)] duration-150 transition ease"
-                    : null
-                }`}
-                onClick={() => setRole("STUDENT")}
-              >
-                Student
-              </button>
-              <button
-                className={`w-[142px] ${
-                  role === "LECTURER"
-                    ? "bg-[#738DFE] h-[36px] rounded-full text-white drop-shadow-[0_4px_26px_rgba(0,0,0,0.25)] duration-150 transition ease"
-                    : null
-                }`}
-                onClick={() => setRole("LECTURER")}
-              >
-                Lecturer
-              </button>
             </div>
-
-            <form
-              className="w-[429px] mb-[39px] mt-[37px]"
-              onSubmit={form.handleSubmit(handleSubmit)}
-            >
-              <div className="flex flex-col w-full mb-[42px]">
-                <label className="mb-[11px] font-[500] text-[13px] text-[#999999]">
-                  Current Level
-                </label>
-
-                <div className="flex gap-x-[10px] items-center mb-[7px]">
-                  <Image src="/message.svg" width={17} height={17} alt="" />
-                  <input
-                    {...form.register("currentLevel")}
-                    placeholder="Enter your Current Level"
-                    className="text-[#000842] placeholder:text-[#000842] focus:outline-none w-full "
-                  />
-                </div>
-                <div className="border-b-[2px]  border-b-[#000842] w-full" />
-              </div>
-
-              <div className="flex flex-col w-full mb-[42px]">
-                <label className="mb-[11px] font-[500] text-[13px] text-[#999999]">
-                  Current Semester
-                </label>
-
-                <div className="flex gap-x-[10px] items-center mb-[7px]">
-                  <Image src="/message.svg" width={17} height={17} alt="" />
-                  <input
-                    {...form.register("semester")}
-                    placeholder="Enter your Current Semester"
-                    className="text-[#000842] placeholder:text-[#000842] focus:outline-none w-full "
-                  />
-                </div>
-                <div className="border-b-[2px]  border-b-[#000842] w-full" />
-              </div>
-            </form>
           </div>
-        </div>
 
-        <div className="flex justify-center ">
-          <button
-            className="w-[429px] h-[53px] bg-[#1F548D] text-white rounded-[32px]"
-            onClick={() => form.handleSubmit(handleSubmit)}
-          >
-            Register
-          </button>
-        </div>
+          <div className="flex justify-center">
+            <button type="submit" className=" bg-blue-800">
+              Register
+            </button>
+          </div>
+        </form>
       </section>
 
       <section className="w-1/6 pt-[26px] pr-[15px] pb-[15px]">

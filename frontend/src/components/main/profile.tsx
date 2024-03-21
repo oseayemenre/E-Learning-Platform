@@ -1,3 +1,5 @@
+"use client";
+
 import { items } from "@/app/(main)/page";
 import BottomBlob from "./bottom-blob";
 

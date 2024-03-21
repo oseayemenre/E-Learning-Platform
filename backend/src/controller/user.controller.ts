@@ -23,7 +23,8 @@ export const createAccount = asyncHandler(
       user: User;
     }>
   ) => {
-    const { email, password } = req.body as TAuthSchema;
+    const { email, password, currentLevel, semester, course, role } =
+      req.body as TAuthSchema;
 
     const user = await findUserByEmail(email);
 
@@ -31,7 +32,14 @@ export const createAccount = asyncHandler(
 
     const hashedPassword = await bcryptjs.hash(password, 10);
 
-    const newUser = await createUser({ email, password: hashedPassword });
+    const newUser = await createUser({
+      email,
+      password: hashedPassword,
+      currentLevel,
+      semester,
+      course,
+      role,
+    });
 
     const accessToken = createToken({ id: newUser.id }, "ACCESS_TOKEN", "15m");
     const refreshToken = createToken({ id: newUser.id }, "REFRESH_TOKEN", "1d");

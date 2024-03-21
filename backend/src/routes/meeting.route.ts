@@ -19,12 +19,12 @@ router.use(privateRoute);
 
 router.post(
   "/create-meeting",
-  roleCheck(Role.HOST),
+  roleCheck(Role.LECTURER),
   validator(meetingSchema),
   meetingCreation
 );
 
-router.delete("/:id", roleCheck(Role.HOST), meetingDeletion);
+router.delete("/:id", roleCheck(Role.LECTURER), meetingDeletion);
 
 router.post("/join-meeting", meetingJoin);
 
@@ -32,13 +32,13 @@ router.get("/:id", getMeeting);
 
 router.delete(
   "/remove-participants/:meetingid/:participantid",
-  roleCheck(Role.HOST),
+  roleCheck(Role.LECTURER),
   removeParticipants
 );
 
 router.post(
   "/assign-role/:id",
-  roleCheck(Role.HOST),
+  roleCheck(Role.LECTURER),
   validator(roleSchema),
   assignRole
 );

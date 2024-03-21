@@ -9,14 +9,39 @@ datasource db {
 
 enum Role {
   STUDENT
-  HOST
+  LECTURER
+}
+
+enum Level {
+  HUNDRED
+  TWO_HUNDRED
+  THREE_HUNDRED
+  FOUR_HUNDRED
+  FIVE_HUNDRED
+}
+
+enum Semester {
+  FIRST
+  SECOND
+}
+
+enum Course {
+  COMPUTER_SCIENCE
+  SOFTWARE_ENGINEERING
+  COMPUTER_TECHNOLOGY
+  COMPUTER_INFORMATION_SYSTEM
+  INFORMATION_TECHNOLOGY
 }
 
 model User {
-  id        String   @id @default(auto()) @map("_id") @db.ObjectId
-  email     String   @unique
-  password  String?
-  role      Role     @default(STUDENT)
+  id           String   @id @default(auto()) @map("_id") @db.ObjectId
+  email        String   @unique
+  password     String?
+  currentLevel Level
+  semester     Semester
+  course       Course
+  role         Role
+
   meetingId String?
   meeting   Meeting? @relation(fields: [meetingId], references: [meetingId])
 

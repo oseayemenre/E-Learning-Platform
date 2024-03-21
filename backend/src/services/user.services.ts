@@ -46,6 +46,10 @@ export const createUser = async (data: TAuthSchema): Promise<User> => {
     data: {
       email: data.email,
       password: data.password,
+      role: data.role,
+      currentLevel: data.currentLevel,
+      course: data.course,
+      semester: data.semester,
     },
   });
 };
