@@ -3,6 +3,7 @@ import { Poppins } from "next/font/google";
 import "../../app/globals.css";
 import React from "react";
 import Nav from "@/components/main/navigation";
+import { UserContextProvider } from "@/context/user.context";
 
 export const metadata: Metadata = { title: "Lernix" };
 const poppins = Poppins({
@@ -16,8 +17,10 @@ const RootLayout = ({ children }: { children: React.ReactNode }) => {
   return (
     <html>
       <body className={`flex ${poppins.className} bg-[#e5e5e5] h-full`}>
-        <Nav />
-        <div className="w-full">{children}</div>
+        <UserContextProvider>
+          <Nav />
+          <div className="w-full">{children}</div>
+        </UserContextProvider>
       </body>
     </html>
   );

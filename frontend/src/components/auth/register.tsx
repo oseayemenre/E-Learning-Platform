@@ -9,8 +9,18 @@ import { IoMdEye, IoMdEyeOff, IoIosArrowUp } from "react-icons/io";
 import { MdOutlineSchool } from "react-icons/md";
 import toast from "react-hot-toast";
 import { motion } from "framer-motion";
+import { useRouter } from "next/navigation";
+import { useUserContext } from "@/context/user.context";
 
 const RegisterSchema = z.object({
+  firstName: z.string().min(1, {
+    message: "First name is required",
+  }),
+
+  lastName: z.string().min(1, {
+    message: "First name is required",
+  }),
+
   email: z.string().email().min(1, {
     message: "Email cannot be empty",
   }),
@@ -78,6 +88,8 @@ const Register = ({
 }) => {
   const form = useForm<TRegisterSchema>({
     defaultValues: {
+      firstName: "",
+      lastName: "",
       email: "",
       password: "",
       confirmPassword: "",
@@ -86,7 +98,10 @@ const Register = ({
     resolver: zodResolver(RegisterSchema),
   });
 
+  const router = useRouter();
+
   const [passwordvisibility, setPasswordVisibility] = useState(false);
+  const { setUser } = useUserContext();
   const [confirmPasswordVisibility, setConfirmPasswordVisibility] =
     useState(false);
   const [role, setRole] = useState<TRole>("STUDENT");
@@ -111,7 +126,6 @@ const Register = ({
       : null;
 
   const handleSubmit = async (value: TRegisterSchema) => {
-    console.log("submit");
     if (value.password !== value.confirmPassword)
       return toast.error("Password must match");
 
@@ -123,6 +137,8 @@ const Register = ({
           "Content-type": "application/json",
         },
         body: JSON.stringify({
+          firstName: value.firstName,
+          lastName: value.lastName,
           email: value.email,
           password: value.password,
           currentLevel,
@@ -133,7 +149,17 @@ const Register = ({
       }
     );
 
-    if (!res.ok) return toast.error("Cannot create account");
+    if (res.status === 400) return toast.error("Cannot create account");
+
+    if (res.status === 409) return toast.error("User already exists");
+
+    const data = await res.json();
+
+    localStorage.setItem("user", JSON.stringify(data));
+
+    setUser(data);
+
+    return router.push("/");
   };
 
   return (
@@ -166,6 +192,38 @@ const Register = ({
                 </div>
 
                 <div className="w-[429px] mb-[39px]">
+                  <div className="flex flex-col w-full mb-[42px]">
+                    <label className="mb-[11px] font-[500] text-[13px] text-[#999999]">
+                      First Name
+                    </label>
+
+                    <div className="flex gap-x-[10px] items-center mb-[7px]">
+                      <Image src="/message.svg" width={17} height={17} alt="" />
+                      <input
+                        {...form.register("firstName")}
+                        placeholder="Enter your first name"
+                        className="text-[#000842] placeholder:text-[#000842] focus:outline-none w-full "
+                      />
+                    </div>
+                    <div className="border-b-[2px]  border-b-[#000842] w-full" />
+                  </div>
+
+                  <div className="flex flex-col w-full mb-[42px]">
+                    <label className="mb-[11px] font-[500] text-[13px] text-[#999999]">
+                      Last Name
+                    </label>
+
+                    <div className="flex gap-x-[10px] items-center mb-[7px]">
+                      <Image src="/message.svg" width={17} height={17} alt="" />
+                      <input
+                        {...form.register("lastName")}
+                        placeholder="Enter your last name"
+                        className="text-[#000842] placeholder:text-[#000842] focus:outline-none w-full "
+                      />
+                    </div>
+                    <div className="border-b-[2px]  border-b-[#000842] w-full" />
+                  </div>
+
                   <div className="flex flex-col w-full mb-[42px]">
                     <label className="mb-[11px] font-[500] text-[13px] text-[#999999]">
                       Email
@@ -318,6 +376,7 @@ const Register = ({
 
                 <div className="w-[314px] h-[83px] bg-[#C5CBE6] rounded-[32px] p-6 flex justify-between items-center drop-shadow-[0_4px_26px_rgba(0,0,0,0.25)] text-white">
                   <button
+                    type="button"
                     className={`w-[142px] ${
                       role === "STUDENT"
                         ? "bg-[#738DFE] h-[36px] rounded-full text-white drop-shadow-[0_4px_26px_rgba(0,0,0,0.25)] duration-150 transition ease"
@@ -328,6 +387,7 @@ const Register = ({
                     Student
                   </button>
                   <button
+                    type="button"
                     className={`w-[142px] ${
                       role === "LECTURER"
                         ? "bg-[#738DFE] h-[36px] rounded-full text-white drop-shadow-[0_4px_26px_rgba(0,0,0,0.25)] duration-150 transition ease"
@@ -441,7 +501,10 @@ const Register = ({
           </div>
 
           <div className="flex justify-center">
-            <button type="submit" className=" bg-blue-800">
+            <button
+              type="submit"
+              className=" bg-[#1F548D] w-[429px] h-[53px] rounded-[32px] text-[17px] text-white"
+            >
               Register
             </button>
           </div>

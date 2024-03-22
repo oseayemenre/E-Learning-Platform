@@ -44,6 +44,8 @@ export const deleteuser = async (id: string): Promise<void> => {
 export const createUser = async (data: TAuthSchema): Promise<User> => {
   return await prisma.user.create({
     data: {
+      firstName: data.firstName,
+      lastName: data.lastName,
       email: data.email,
       password: data.password,
       role: data.role,

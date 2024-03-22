@@ -1,7 +1,6 @@
 import { IoMdHome, IoIosSettings } from "react-icons/io";
 import { FaCompass } from "react-icons/fa";
 import { FaNewspaper, FaCalendarDays } from "react-icons/fa6";
-import { MdOutlineLogout } from "react-icons/md";
 
 export const nav_items = [
   {
@@ -28,10 +27,5 @@ export const nav_items = [
     icon: IoIosSettings,
     label: "Settings",
     path: "/settings",
-  },
-  {
-    icon: MdOutlineLogout,
-    label: "Log out",
-    path: "/#",
   },
 ] as const;

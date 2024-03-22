@@ -3,11 +3,33 @@
 import { usePathname } from "next/navigation";
 import Link from "next/link";
 import { nav_items } from "@/utils/data";
+import { MdOutlineLogout } from "react-icons/md";
+import { useUserContext } from "@/context/user.context";
+import { useRouter } from "next/navigation";
+
+type TNav_items = (typeof nav_items)[number];
 
 const Nav = () => {
-  type TNav_items = (typeof nav_items)[number];
-
   const pathname = usePathname();
+
+  const { setUser } = useUserContext();
+
+  const router = useRouter();
+
+  const handleLogOut = async (): Promise<void> => {
+    await fetch("", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+
+    localStorage.removeItem("user");
+
+    setUser(null);
+
+    return router.push("/auth");
+  };
 
   return (
     <nav className="w-[25%] bg-gradient-to-b from-[#1F548D] via-[#4591C4] to-[#C2BBF0] pb-10 pl-10 pt-[160px]">
@@ -42,7 +64,7 @@ const Nav = () => {
           <Link
             key={index}
             href={items.path}
-            className={`flex gap-x-2 items-center pl-8 py-3 ${
+            className={`flex items-center pl-8 py-3 gap-x-2 mb-2${
               pathname === items.path
                 ? "bg-[#e5e5e5] rounded-l-[100px]"
                 : "bg-transparent"
@@ -61,6 +83,14 @@ const Nav = () => {
             </p>
           </Link>
         ))}
+
+        <div
+          className="flex items-center pl-8 py-3 mb-2 gap-x-2 cursor-pointer"
+          onClick={() => handleLogOut()}
+        >
+          <MdOutlineLogout size={24} color="#959BA5" />
+          <p className="text-[14px] font-[500] text-white">LOG OUT</p>
+        </div>
       </section>
     </nav>
   );

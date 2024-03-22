@@ -1,3 +1,5 @@
+"use client";
+
 import SearchSection from "@/components/main/search-section";
 import Blob from "@/components/message/blob";
 import Image from "next/image";
@@ -5,6 +7,8 @@ import { io } from "socket.io-client";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useUserContext } from "@/context/user.context";
+import { useRouter } from "next/navigation";
 
 const messageSchema = z.object({
   message: z.string().min(1),
@@ -25,6 +29,11 @@ const Messages = () => {
     "Okechukwu Eluwa",
     "Ayemenre Oseghale",
   ];
+
+  const { user } = useUserContext();
+  const router = useRouter();
+
+  if (!user) return router.push("/auth");
   return (
     <div className="flex ml-[26px] mb-6 justify-between">
       <section className="w-2/3 mt-[44px] mb-[46px] h-screen ">

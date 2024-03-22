@@ -4,10 +4,17 @@ import SearchSection from "@/components/main/search-section";
 import FavoriteBlob from "@/components/dashboard/favorite-blob";
 import Profile from "@/components/main/profile";
 import HeadTitle from "@/components/main/head-title";
+import { useUserContext } from "@/context/user.context";
+import { useRouter } from "next/navigation";
 
 export const items = Array(3).fill(0) as number[];
 
 const Home = () => {
+  const { user } = useUserContext();
+  const router = useRouter();
+
+  if (!user) return router.push("/auth");
+
   return (
     <main className="ml-[26px] flex justify-between">
       <section className="w-2/3 mt-[44px] mb-[46px]">
@@ -17,7 +24,7 @@ const Home = () => {
           <HeadTitle title="Pinned" />
 
           <div className="flex justify-between">
-            {items.map((index: number) => (
+            {items.map((item: number, index: number) => (
               <FavoriteBlob key={index} />
             ))}
           </div>

@@ -35,9 +35,11 @@ enum Course {
 
 model User {
   id           String   @id @default(auto()) @map("_id") @db.ObjectId
+  firstName    String
+  lastName     String
   email        String   @unique
   password     String?
-  currentLevel Level
+  currentLevel Level?
   semester     Semester
   course       Course
   role         Role
@@ -78,7 +80,7 @@ model Message {
   recieverId String @db.ObjectId
   message    String
 
-  user User @relation(fields: [senderId], references: [id])
+  user User @relation(fields: [senderId], references: [id], onDelete: Cascade)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
