@@ -4,6 +4,7 @@ import "../../app/globals.css";
 import React from "react";
 import Nav from "@/components/main/navigation";
 import { UserContextProvider } from "@/context/user.context";
+import { Toaster } from "react-hot-toast";
 
 export const metadata: Metadata = { title: "Lernix" };
 const poppins = Poppins({
@@ -17,6 +18,7 @@ const RootLayout = ({ children }: { children: React.ReactNode }) => {
   return (
     <html>
       <body className={`flex ${poppins.className} bg-[#e5e5e5] h-full`}>
+        <Toaster position="top-center" />
         <UserContextProvider>
           <Nav />
           <div className="w-full">{children}</div>

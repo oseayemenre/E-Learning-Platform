@@ -12,16 +12,20 @@ type TNav_items = (typeof nav_items)[number];
 const Nav = () => {
   const pathname = usePathname();
 
-  const { setUser } = useUserContext();
+  const { user, setUser } = useUserContext();
 
   const router = useRouter();
 
+  if (!user) return null;
+
   const handleLogOut = async (): Promise<void> => {
-    await fetch("", {
+    await fetch("http://localhost:8000/api/v1/users/logout", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
+
+      credentials: "include",
     });
 
     localStorage.removeItem("user");

@@ -12,7 +12,12 @@ import { messageRoute } from "./routes/message.route";
 export const app = express();
 
 app.use(morgan("dev"));
-app.use(cors());
+app.use(
+  cors({
+    origin: "http://localhost:3000",
+    credentials: true,
+  })
+);
 app.use(helmet());
 app.use(express.json());
 app.use(

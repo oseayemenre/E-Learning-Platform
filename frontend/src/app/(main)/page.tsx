@@ -10,11 +10,10 @@ import { useRouter } from "next/navigation";
 export const items = Array(3).fill(0) as number[];
 
 const Home = () => {
-  const { user } = useUserContext();
   const router = useRouter();
+  const { user } = useUserContext();
 
   if (!user) return router.push("/auth");
-
   return (
     <main className="ml-[26px] flex justify-between">
       <section className="w-2/3 mt-[44px] mb-[46px]">

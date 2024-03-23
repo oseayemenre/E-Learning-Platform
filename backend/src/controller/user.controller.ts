@@ -55,11 +55,11 @@ export const createAccount = asyncHandler(
     const refreshToken = createToken({ id: newUser.id }, "REFRESH_TOKEN", "1d");
 
     res.status(201).cookie("access_token", accessToken, {
-      maxAge: 15 * 60 * 1000,
+      maxAge: 24 * 60 * 60 * 1000,
       httpOnly: true,
     });
     res.status(201).cookie("refresh_token", refreshToken, {
-      maxAge: 1 * 24 * 60 * 1000,
+      maxAge: 24 * 60 * 60 * 1000,
       httpOnly: true,
     });
 
@@ -162,16 +162,14 @@ export const getUser = asyncHandler(
     req: IRequest,
     res: Response<{
       status: "success";
-      user: Record<"email", string | undefined>;
+      user: User;
     }>
   ) => {
-    const user = await findUserById((req.user as { id: string }).id);
+    const user = (await findUserById((req.user as { id: string }).id)) as User;
 
     return res.status(200).json({
       status: "success",
-      user: {
-        email: user?.email,
-      },
+      user,
     });
   }
 );

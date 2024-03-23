@@ -8,7 +8,7 @@ import { IoMdEye, IoMdEyeOff } from "react-icons/io";
 import z from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useUserContext } from "@/context/user.context";
+import { IUser, useUserContext } from "@/context/user.context";
 
 const LoginSchema = z.object({
   email: z.string().email().min(1, {
@@ -37,7 +37,7 @@ const Login = ({
   });
 
   const [passwordvisibility, setPasswordVisibility] = useState(false);
-  const { setUser } = useUserContext();
+  const { user, setUser } = useUserContext();
   const router = useRouter();
 
   const handleSubmit = async (value: TLoginSchema): Promise<void | string> => {
@@ -50,9 +50,11 @@ const Login = ({
         email: value.email,
         password: value.password,
       }),
+
+      credentials: "include",
     });
 
-    const data = await res.json();
+    const data = (await res.json()) as IUser;
 
     if (res.status === 500) return toast.error("Something went wrong");
 
@@ -60,11 +62,10 @@ const Login = ({
 
     if (res.status === 404) return toast.error("User not found");
 
-    router.push("/");
-
-    localStorage.setItem("user", JSON.stringify(data));
-
-    setUser(data);
+    if (res.ok) {
+      localStorage.setItem("user", JSON.stringify(data));
+      setUser(data);
+    }
   };
 
   return (

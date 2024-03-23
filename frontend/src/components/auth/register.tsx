@@ -10,7 +10,7 @@ import { MdOutlineSchool } from "react-icons/md";
 import toast from "react-hot-toast";
 import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
-import { useUserContext } from "@/context/user.context";
+import { IUser, useUserContext } from "@/context/user.context";
 
 const RegisterSchema = z.object({
   firstName: z.string().min(1, {
@@ -101,7 +101,7 @@ const Register = ({
   const router = useRouter();
 
   const [passwordvisibility, setPasswordVisibility] = useState(false);
-  const { setUser } = useUserContext();
+  const { user, setUser } = useUserContext();
   const [confirmPasswordVisibility, setConfirmPasswordVisibility] =
     useState(false);
   const [role, setRole] = useState<TRole>("STUDENT");
@@ -146,6 +146,8 @@ const Register = ({
           course: course.split(/\s+/).join("_"),
           role,
         }),
+
+        credentials: "include",
       }
     );
 
@@ -153,7 +155,7 @@ const Register = ({
 
     if (res.status === 409) return toast.error("User already exists");
 
-    const data = await res.json();
+    const data = (await res.json()) as IUser;
 
     localStorage.setItem("user", JSON.stringify(data));
 

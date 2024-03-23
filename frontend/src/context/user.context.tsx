@@ -2,10 +2,7 @@
 
 import { SetStateAction, createContext, useContext, useState } from "react";
 
-interface IUser {
-  message: string;
-  status: string;
-
+export interface IUser {
   user: {
     id: string;
     firstName: string;
