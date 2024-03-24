@@ -51,15 +51,15 @@ export const createAccount = asyncHandler(
       role,
     });
 
-    const accessToken = createToken({ id: newUser.id }, "ACCESS_TOKEN", "15m");
-    const refreshToken = createToken({ id: newUser.id }, "REFRESH_TOKEN", "1d");
+    const accessToken = createToken({ id: newUser.id }, "ACCESS_TOKEN", "24h");
+    const refreshToken = createToken({ id: newUser.id }, "REFRESH_TOKEN", "7d");
 
     res.status(201).cookie("access_token", accessToken, {
       maxAge: 24 * 60 * 60 * 1000,
       httpOnly: true,
     });
     res.status(201).cookie("refresh_token", refreshToken, {
-      maxAge: 24 * 60 * 60 * 1000,
+      maxAge: 7 * 24 * 60 * 60 * 1000,
       httpOnly: true,
     });
 
@@ -86,15 +86,15 @@ export const login = asyncHandler(
 
     if (!verifyUser) throw new CustomError(401, "Invalid credentials");
 
-    const accessToken = createToken({ id: user.id }, "ACCESS_TOKEN", "15m");
-    const refreshToken = createToken({ id: user.id }, "REFRESH_TOKEN", "1d");
+    const accessToken = createToken({ id: user.id }, "ACCESS_TOKEN", "24h");
+    const refreshToken = createToken({ id: user.id }, "REFRESH_TOKEN", "7d");
 
     res.status(201).cookie("access_token", accessToken, {
-      maxAge: 15 * 60 * 1000,
+      maxAge: 24 * 60 * 60 * 1000,
       httpOnly: true,
     });
     res.status(201).cookie("refresh_token", refreshToken, {
-      maxAge: 1 * 24 * 60 * 1000,
+      maxAge: 7 * 24 * 60 * 60 * 1000,
       httpOnly: true,
     });
 

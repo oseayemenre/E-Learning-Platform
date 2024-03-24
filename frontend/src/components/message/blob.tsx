@@ -9,12 +9,13 @@ const Blob = ({
 }: {
   name: string;
   id: string;
+
   showConversations: Dispatch<SetStateAction<boolean | string>>;
   setId: Dispatch<SetStateAction<string | null>>;
 }) => {
   const handleSelectUser = () => {
-    showConversations(name);
     setId(id);
+    showConversations(name);
   };
 
   return (

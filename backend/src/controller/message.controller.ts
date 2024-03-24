@@ -16,17 +16,19 @@ export const sendMessage = asyncHandler(
     const senderId = req.user?.id as string;
     const { message } = req.body;
 
-    const conversation = await findConversation({
+    let conversation = await findConversation({
       senderId,
       recieverId,
     });
 
-    if (!conversation) await makeConversation({ senderId, recieverId });
+    if (!conversation)
+      conversation = await makeConversation({ senderId, recieverId });
 
     const newMessage = await sendNewMessage({
       senderId,
       recieverId,
       message,
+      conversationId: conversation.id,
     });
 
     return res.status(200).json({

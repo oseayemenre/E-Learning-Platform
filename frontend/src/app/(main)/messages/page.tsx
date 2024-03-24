@@ -46,9 +46,22 @@ interface IMessage {
   senderId: string;
   recieverId: string;
   message: string;
-  createdAt: Date;
-  updatedAt: Date;
+  conversationId: string;
+  createdAt: string;
+  updatedAt: string;
 }
+interface IMessages {
+  status: string;
+  messages: {
+    id: string;
+    members: string[];
+    createdAt: Date;
+    updatedAt: Date;
+    messages: IMessage[];
+  };
+}
+
+type TMessage = IMessage | string;
 
 const Messages = () => {
   const form = useForm<TMessageSchema>({
@@ -70,7 +83,29 @@ const Messages = () => {
 
   const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
 
-  const [messages, setMessages] = useState<string[]>([]);
+  const { user } = useUserContext();
+
+  const [messages, setMessages] = useState<TMessage[]>([]);
+
+  let fromMe: boolean;
+
+  useEffect(() => {
+    const handleGetConversation = async () => {
+      const res = await fetch(
+        `http://localhost:8000/api/v1/messages/${selectedUserId}`,
+        {
+          method: "GET",
+          credentials: "include",
+        }
+      );
+
+      const data = (await res.json()) as IMessages;
+
+      return setMessages(data.messages?.messages);
+    };
+
+    handleGetConversation();
+  }, [selectedUserId]);
 
   const handleSendMessage = async (values: TMessageSchema) => {
     const res = await fetch(
@@ -94,8 +129,6 @@ const Messages = () => {
     toast.success("Message sent");
     return form.reset();
   };
-
-  console.log(messages);
 
   useEffect(() => {
     const handleFetch = async () => {
@@ -128,12 +161,9 @@ const Messages = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const { user } = useUserContext();
   const router = useRouter();
 
   if (!user) return router.push("/auth");
-
-  const fromMe = true;
 
   return (
     <div className="flex ml-[26px] mb-6 justify-between">
@@ -141,7 +171,7 @@ const Messages = () => {
         <SearchSection />
 
         {showConversations ? (
-          <div className="w-[768px] h-[683px] relative bg-white rounded-[24px] pl-[29px] pr-[60px] pt-3 mb-[28px]">
+          <div className="w-[768px] h-[683px] relative bg-white rounded-[24px] pl-[29px] pr-[60px] pt-3 mb-[28px] ">
             <div className="flex gap-x-[17px] items-center mb-[28px]">
               <Image src="/mercy.svg" width={55} height={55} alt="" />
               <p className="font-[700] text-[22px] text-[#6A6E74]">
@@ -149,21 +179,46 @@ const Messages = () => {
               </p>
             </div>
 
-            <div
-              className={`w-full flex flex-col gap-y-6 h-[75%] ${
-                fromMe ? "items-end" : "flex items-start"
-              }`}
-            >
-              {messages.map((message, index) => (
-                <div
-                  key={index}
-                  className={`ml-[55px] text-white ${
-                    fromMe ? "bg-[#0e3aff]" : "bg-[#DBE0EE]"
-                  } w-[185px] py-5 rounded-[24px] px-4`}
-                >
-                  {message}
-                </div>
-              ))}
+            <div className="w-full flex flex-col gap-y-6 h-[75%] overflow-y-auto">
+              {messages?.map((message, index) => {
+                if (
+                  typeof message !== "string" &&
+                  message.senderId !== user.user.id
+                ) {
+                  fromMe = false;
+                } else fromMe = true;
+
+                return (
+                  <div
+                    key={index}
+                    className={`w-full flex flex-col gap-y-1 ${
+                      fromMe ? "items-end" : "items-start pl-[55px] "
+                    }`}
+                  >
+                    <div
+                      className={`${
+                        fromMe
+                          ? "bg-[#0e3aff] relative right-0 text-white"
+                          : "bg-[#DBE0EE] text-black"
+                      } w-[185px] py-5 rounded-[24px] px-4`}
+                    >
+                      {typeof message === "string" ? message : message.message}
+                    </div>
+
+                    <p
+                      className={`text-[14px] ${
+                        fromMe ? "ml-0 relative right-2" : "ml-2"
+                      }`}
+                    >
+                      {typeof message !== "string"
+                        ? `${new Date(message.createdAt).getHours()}:${new Date(
+                            message.createdAt
+                          ).getMinutes()}`
+                        : ""}
+                    </p>
+                  </div>
+                );
+              })}
             </div>
 
             <div className="w-full">

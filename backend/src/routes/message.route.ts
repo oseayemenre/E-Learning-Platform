@@ -13,12 +13,12 @@ const router = Router();
 
 router.use(privateRoute);
 
-router.get("/", getMessage);
-
-router.post("/:id", validator(messageSchema), sendMessage);
-
-router.route("/:id").delete(deleteMessage);
-
 router.get("/users", getAllUsers);
+
+router
+  .route("/:id")
+  .get(getMessage)
+  .post(validator(messageSchema), sendMessage)
+  .delete(deleteMessage);
 
 export { router as messageRoute };
