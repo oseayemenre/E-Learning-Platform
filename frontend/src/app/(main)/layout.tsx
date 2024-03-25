@@ -5,6 +5,7 @@ import React from "react";
 import Nav from "@/components/main/navigation";
 import { UserContextProvider } from "@/context/user.context";
 import { Toaster } from "react-hot-toast";
+import { PinnedPostProvider } from "@/context/pinned-post,context";
 
 export const metadata: Metadata = { title: "Lernix" };
 const poppins = Poppins({
@@ -20,8 +21,10 @@ const RootLayout = ({ children }: { children: React.ReactNode }) => {
       <body className={`flex ${poppins.className} bg-[#e5e5e5] h-full`}>
         <Toaster position="top-center" />
         <UserContextProvider>
-          <Nav />
-          <div className="w-full">{children}</div>
+          <PinnedPostProvider>
+            <Nav />
+            <div className="w-full">{children}</div>
+          </PinnedPostProvider>
         </UserContextProvider>
       </body>
     </html>

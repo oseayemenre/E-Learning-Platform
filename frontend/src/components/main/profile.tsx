@@ -1,11 +1,12 @@
 "use client";
 
-import { items } from "@/app/(main)/page";
 import BottomBlob from "./bottom-blob";
 import { useUserContext } from "@/context/user.context";
 
 const Profile = () => {
   const { user } = useUserContext();
+
+  const items = Array(3).fill(0) as number[];
 
   const semester = user?.user.semester === "FIRST" ? "1st" : "2nd";
 

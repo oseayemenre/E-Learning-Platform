@@ -5,6 +5,7 @@ import { SetStateAction, createContext, useContext, useState } from "react";
 export interface IUser {
   user: {
     id: string;
+    course: string;
     firstName: string;
     lastName: string;
     email: string;
@@ -18,10 +19,12 @@ export interface IUser {
   };
 }
 
-const UserContext = createContext<{
+interface IUserContext {
   user: IUser | null;
   setUser: React.Dispatch<SetStateAction<IUser | null>>;
-} | null>(null);
+}
+
+const UserContext = createContext<IUserContext | null>(null);
 
 export const useUserContext = () => {
   const context = useContext(UserContext);

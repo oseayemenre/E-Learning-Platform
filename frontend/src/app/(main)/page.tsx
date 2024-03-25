@@ -6,12 +6,14 @@ import Profile from "@/components/main/profile";
 import HeadTitle from "@/components/main/head-title";
 import { useUserContext } from "@/context/user.context";
 import { useRouter } from "next/navigation";
+import { usePinnedPost } from "@/context/pinned-post,context";
 
 export const items = Array(3).fill(0) as number[];
 
 const Home = () => {
   const router = useRouter();
   const { user } = useUserContext();
+  const { pinnedPost } = usePinnedPost();
 
   if (!user) return router.push("/auth");
   return (
@@ -22,10 +24,12 @@ const Home = () => {
         <section className="mb-10">
           <HeadTitle title="Pinned" />
 
-          <div className="flex justify-between">
-            {items.map((item: number, index: number) => (
-              <FavoriteBlob key={index} />
-            ))}
+          <div className={`flex gap-x-2 items-center overflow-x-auto w-full`}>
+            {pinnedPost.length < 1
+              ? "No pinned posts yet"
+              : pinnedPost.map((post, index: number) => (
+                  <FavoriteBlob key={index} post={post} />
+                ))}
           </div>
         </section>
 
